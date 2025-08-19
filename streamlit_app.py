@@ -320,15 +320,22 @@ def identify_and_inquire_about_plant(query: str) -> str:
         image_path = None
         image_name = None
         
+        # Look for image file extensions in the query
+        image_extensions = ['.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG']
         for name, path in uploaded_images.items():
-            if name.lower() in query.lower() or len(uploaded_images) == 1:
+            # Check if the image name is mentioned in the query
+            name_without_ext = name.lower().split('.')[0]
+            if (name.lower() in query.lower() or 
+                name_without_ext in query.lower() or 
+                any(ext in query for ext in image_extensions) or
+                len(uploaded_images) == 1):
                 image_path = path
                 image_name = name
                 break
         
         if not image_path:
             available_images = ", ".join(uploaded_images.keys())
-            return f"Could not determine which image you're referring to. Available images: {available_images}"
+            return f"Could not determine which image you're referring to. Available images: {available_images}. Please mention the image name in your question."
         
         plantnet_api_key = st.session_state.get('plantnet_api_key', '')
         if not plantnet_api_key:
@@ -352,30 +359,38 @@ def identify_and_inquire_about_plant(query: str) -> str:
                     scientific_name = best_match['species']['scientificNameWithoutAuthor']
                     common_names = best_match['species'].get('commonNames', ['N/A'])
                     confidence = best_match.get('score', 0)
-                    identification_result = f"Identified Plant: {scientific_name} (Common Names: {', '.join(common_names)}, Confidence: {confidence:.2f})."
+                    identification_result = f"Plant identified: {scientific_name}"
+                    if common_names and common_names != ['N/A']:
+                        identification_result += f" (Common names: {', '.join(common_names[:2])})"
+                    identification_result += f" with {confidence:.1%} confidence."
                 else:
-                    return "Could not identify the plant from the image."
+                    return "Could not identify the plant from the image. The image may be unclear or the plant may not be in the database."
         except requests.RequestException as e:
-            return f"ERROR: PlantNet API call failed: {e}"
+            return f"Error calling PlantNet API: {e}"
         
         # Use LLM to answer the follow-up question
         api_key = st.session_state.get('perplexity_api_key', '')
         if not api_key:
-            return f"{identification_result}\n\nPerplexity API key not configured for follow-up analysis."
+            return f"{identification_result}\n\nPerplexity API key not configured for detailed analysis."
             
         llm = PerplexityLLM(api_key=api_key)
-        follow_up_prompt = f"""
-        A farmer has identified a plant as: {identification_result}.
-        The farmer's original question was: '{query}'.
-        Based on the identified plant, provide a helpful answer to the farmer's question.
-        Address whether it is commonly considered a weed and provide practical advice.
-        """
+        follow_up_prompt = f"""Based on the plant identification: {identification_result}
+        
+        Answer this farmer's question: {query}
+        
+        Provide practical advice about:
+        1. Whether this is a weed or beneficial plant
+        2. How to manage/remove it if it's a weed
+        3. Any other relevant farming advice
+        
+        Keep the response concise and practical."""
+        
         follow_up_answer = llm._call(follow_up_prompt)
 
-        return f"{identification_result}\n\nRegarding your question:\n{follow_up_answer}"
+        return f"{identification_result}\n\n{follow_up_answer}"
         
     except Exception as e:
-        return f"ERROR: An unexpected error occurred: {e}"
+        return f"Error processing plant identification: {e}"
 
 # --- Main RAG Agent ---
 def create_main_agent():
@@ -392,6 +407,8 @@ def create_main_agent():
     Analyze the user's question and use one or more of the available tools to find the answer.
     You MUST provide the final answer in the same language as the original user's question.
 
+    IMPORTANT: Keep your reasoning concise and direct. Don't repeat actions or get stuck in loops.
+
     TOOLS:
     ------
     You have access to the following tools:
@@ -405,14 +422,11 @@ def create_main_agent():
     Observation: The result of the action
     ```
 
-    When you have gathered all the necessary information, you MUST provide a final, synthesized answer in a conversational tone.
-    The format for the final answer is:
+    When you have enough information to answer, immediately provide your final answer:
     ```
-    Thought: Do I need to use a tool? No
-    Final Answer: [A comprehensive and helpful response to the user's original question, written in the same language as the user's question]
+    Thought: I now have enough information to answer the question.
+    Final Answer: [Your comprehensive response in the same language as the user's question]
     ```
-
-    Begin!
 
     Question: {input}
     {agent_scratchpad}
@@ -426,7 +440,15 @@ def create_main_agent():
         
     llm = PerplexityLLM(api_key=api_key)
     agent = create_react_agent(llm, tools, prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
+    agent_executor = AgentExecutor(
+        agent=agent, 
+        tools=tools, 
+        verbose=True, 
+        handle_parsing_errors=True,
+        max_iterations=5,  # Limit iterations to prevent infinite loops
+        max_execution_time=60,  # 60 second timeout
+        early_stopping_method="generate"  # Stop early if possible
+    )
 
     return agent_executor
 
