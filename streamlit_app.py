@@ -22,7 +22,7 @@ import sys
 
 # Page configuration
 st.set_page_config(
-    page_title="🌾 Krishi Samadhan",
+    page_title="🌾 Krishi Samadhan – Farmonomics",
     page_icon="🌾",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -455,7 +455,7 @@ def create_main_agent():
 # --- Streamlit UI ---
 def main():
     # Header
-    st.markdown('<h1 class="main-header">🌾 Krishi Samadhan</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-header">🌾 Krishi Samadhan – Farmonomics</h1>', unsafe_allow_html=True)
     st.markdown('<p class="sub-header">Your AI-powered farming companion for prices, schemes, and plant identification</p>', unsafe_allow_html=True)
 
     # Sidebar for configuration
