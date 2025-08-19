@@ -22,7 +22,7 @@ import sys
 
 # Page configuration
 st.set_page_config(
-    page_title="🌾 Farmer Assistant RAG Agent",
+    page_title="🌾 Krishi Samadhan",
     page_icon="🌾",
     layout="wide",
     initial_sidebar_state="expanded"
