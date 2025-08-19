@@ -455,7 +455,7 @@ def create_main_agent():
 # --- Streamlit UI ---
 def main():
     # Header
-    st.markdown('<h1 class="main-header">🌾 Farmer Assistant RAG Agent</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-header">🌾 Krishi Samadhan</h1>', unsafe_allow_html=True)
     st.markdown('<p class="sub-header">Your AI-powered farming companion for prices, schemes, and plant identification</p>', unsafe_allow_html=True)
 
     # Sidebar for configuration
