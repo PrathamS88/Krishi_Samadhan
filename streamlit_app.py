@@ -1127,7 +1127,7 @@ def main():
             st.write(f"📊 API Calls: {st.session_state.metrics['total_api_calls']}")
 
     # Main content area with tabs
-    tab1, tab2, tab3 = st.tabs(["💬 Query Interface", "📊 Performance Dashboard", "🎯 Resume Metrics"])
+    tab1, tab2, tab3 = st.tabs(["💬 Query Interface", "📊 Performance Dashboard", "🎯 Metrics"])
     
     with tab1:
         st.header("💬 Ask Your Question")
