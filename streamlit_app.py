@@ -858,7 +858,7 @@ def display_performance_dashboard():
 
 def display_resume_metrics():
     """Display key metrics formatted for resume/portfolio use."""
-    st.markdown("## 🎯 Resume-Ready Metrics")
+    st.markdown("## 🎯 Metrics")
     
     metrics = st.session_state.metrics
     
@@ -890,7 +890,7 @@ def display_resume_metrics():
     
     # Display metrics in copyable format
     resume_points = f"""
-    **🔥 Key Performance Metrics for Resume:**
+    **🔥 Key Performance Metrics :**
     
     📊 **Document Processing & Knowledge Base:**
     • Processed {total_documents} PDF documents containing {total_pages} pages into {total_chunks} searchable text chunks
