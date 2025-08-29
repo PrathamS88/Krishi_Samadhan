@@ -2,7 +2,12 @@ streamlit
 requests
 pandas
 beautifulsoup4
+langchain
+langchain-community
+langchain-experimental
+faiss-cpu
+sentence-transformers
 plotly
 numpy
 PyPDF2
-lxml
+pypdf
