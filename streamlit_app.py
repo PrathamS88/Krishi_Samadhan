@@ -856,9 +856,9 @@ def display_performance_dashboard():
             fig.update_layout(height=300)
             st.plotly_chart(fig, use_container_width=True)
 
-def display_metrics():
-    """Display key metrics formatted for /portfolio use."""
-    st.markdown("## 🎯Metrics")
+def display_resume_metrics():
+    """Display key metrics formatted for resume/portfolio use."""
+    st.markdown("## 🎯 Resume-Ready Metrics")
     
     metrics = st.session_state.metrics
     
@@ -889,8 +889,8 @@ def display_metrics():
     avg_search_time = np.mean(semantic_search_times) if semantic_search_times else 0
     
     # Display metrics in copyable format
-    Key points = f"""
-    **🔥 Key Performance Metrics:**
+    resume_points = f"""
+    **🔥 Key Performance Metrics for Resume:**
     
     📊 **Document Processing & Knowledge Base:**
     • Processed {total_documents} PDF documents containing {total_pages} pages into {total_chunks} searchable text chunks
@@ -924,7 +924,7 @@ def display_metrics():
     • Streamlit-based interactive dashboard with performance monitoring
     """
     
-    st.markdown(Key points)
+    st.markdown(resume_points)
     
     # Copyable metrics for easy use
     st.markdown("### 📋 Quick Copy Metrics:")
@@ -1127,7 +1127,7 @@ def main():
             st.write(f"📊 API Calls: {st.session_state.metrics['total_api_calls']}")
 
     # Main content area with tabs
-    tab1, tab2, tab3 = st.tabs(["💬 Query Interface", "📊 Performance Dashboard", "🎯 Metrics"])
+    tab1, tab2, tab3 = st.tabs(["💬 Query Interface", "📊 Performance Dashboard", "🎯 Resume Metrics"])
     
     with tab1:
         st.header("💬 Ask Your Question")
@@ -1253,7 +1253,7 @@ def main():
                     )
     
     with tab3:
-        display_metrics()
+        display_resume_metrics()
 
 if __name__ == "__main__":
     main()
